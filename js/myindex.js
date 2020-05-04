@@ -116,7 +116,7 @@ Frog = function(){
     this.armHeight = 40 ;
     this.eyeBallMoveX = 0;
     this.eyeBallMoveY= 0;
-    this.targetFly = new THREE.Vector3(0,0,200);
+    this.targetFly = new THREE.Vector3(0,0,120);
     this.isHunting = false;
     this.isBlinking = false;
     this.shouldersPosition = new THREE.Vector3(0,30, 0);
@@ -156,18 +156,12 @@ Frog = function(){
     //Eyeball
     var irisGeom = new THREE.CircleGeometry(4,32);
     this.rightIris = new THREE.Mesh(irisGeom, blackMat);
-    // this.rightIris.position.x = 2;
-    // this.rightIris.position.y = -2;
-    // this.rightIris.position.z = .5;
     this.rightIris.position.x = 2;
     this.rightIris.position.y = -2;
     this.rightIris.position.z = .5;
 
     this.leftIris = this.rightIris.clone();
     this.leftIris.position.x = -this.rightIris.position.x;
-
-    // this.eyeBallMoveX = 5;
-    // this.eyeBallMoveY = 4;
 
     this.rightEye.add(this.rightIris);
     this.leftEye.add(this.leftIris);
@@ -239,9 +233,6 @@ Frog = function(){
     this.torso.add(this.neck);
     this.torso.geometry.applyMatrix(skewMatrixBody);
     this.neck.geometry.applyMatrix(skewMatrixBody);
-
-
-
 
     this.rightArm = new THREE.Mesh(armGeom,greenMat);
     this.rightArm.position.x = -3;
@@ -351,29 +342,28 @@ Frog.prototype.hunt = function(pos, fly){
     // console.log(pos);
     if(!this.isHunting){
         this.isHunting = true;
-        this.lip(fly);
+        this.lip();
     }
 }
-Frog.prototype.lip = function(f){
+Frog.prototype.lip = function(){
     _this = this;
     this.mouth.position.z = 0;
     this.huntmouth.position.z = 30;
     this.mouth.geometry.verticesNeedUpdate = true;
     this.huntmouth.geometry.verticesNeedUpdate = true;
-    var fly = this.targetFly;
-    fly.z = 120;
+    var cur_fly = this.targetFly.clone();
+    cur_fly.z = 120;
     var tonguePos = new THREE.Vector3();
     tonguePos.x = this.head.position.x;
     tonguePos.y = this.head.position.y + this.tongue.position.y;
     tonguePos.z = this.head.position.z;
-    // this.tongue.rotation.x = -Math.PI * 0.1;
-    this.tongue.geometry.verticesNeedUpdate = true;
-    console.log("headposition");
-    console.log(this.head.position);
 
-    var distance = fly.sub(tonguePos).length();
-    TweenMax.to (this.tongue.position, .2, {z:(distance-1)/2, yoyo:true, repeat:1});
-    TweenMax.to (this.tongue.scale, .2, {z:distance-1, yoyo:true, repeat:1, onComplete:function(){
+    this.tongue.geometry.verticesNeedUpdate = true;
+
+    var distance = cur_fly.sub(tonguePos).length();
+    TweenMax.to (fly.flybody.position, .2, {x : fly.flybody.position.x, y:fly.flybody.position.y * 0.97, delay:.3, onComplete:function(){}})
+    TweenMax.to (this.tongue.position, .3, {z:(distance-1)/2, yoyo:true, repeat:1});
+    TweenMax.to (this.tongue.scale, .3, {z:distance-1, yoyo:true, repeat:1, onComplete:function(){
             _this.isHunting = false;
             hunt = false;
             headDir = false;
@@ -382,6 +372,8 @@ Frog.prototype.lip = function(f){
             _this.mouth.geometry.verticesNeedUpdate = true;
             _this.huntmouth.geometry.verticesNeedUpdate = true;
         }});
+    // console.log(fly);
+    TweenMax.to (fly.flybody.position, .3, {x : tonguePos.x, y:tonguePos.y, z:tonguePos.z, delay:.35, onComplete:function(){}})
 }
 
 Fly = function(){
@@ -492,12 +484,15 @@ function loop(){
     if(hunt){
         // console.log("hunting");
         if(!headDir){
-            frog1.targetFly = pos;
+            frog1.targetFly.x = pos.x;
+            frog1.targetFly.y = pos.y;
+            frog1.targetFly.z = pos.z;
+            console.log(pos);
             frog1.traceMouse(pos);
             frog1.eyetrace(pos);
             headDir = true;
         }else{
-            frog1.hunt(frog1.targetFly);
+            frog1.hunt(frog1.targetFly,fly);
         }
     }else{
         // console.log("not Hunting");
