@@ -25,19 +25,10 @@ var HEIGHT,
     mousePos = {x:0,y:0};
 
 //basic materials
-var yellowMat = new THREE.MeshLambertMaterial ({
-    color: 0xfdd276,
-    shading:THREE.FlatShading
-});
 var deepGreenMat = new THREE.MeshLambertMaterial ({
     color: 0x16a085,
     shading:THREE.FlatShading
 });
-var redMat = new THREE.MeshLambertMaterial ({
-    color: 0xad3525,
-    shading:THREE.FlatShading
-});
-
 var greenMat = new THREE.MeshLambertMaterial ({
     color: 0x009432,
     shading:THREE.FlatShading
@@ -49,16 +40,6 @@ var pinkMat = new THREE.MeshLambertMaterial ({
 
 var whiteMat = new THREE.MeshLambertMaterial ({
     color: 0xffffff,
-    shading:THREE.FlatShading
-});
-
-var purpleMat = new THREE.MeshLambertMaterial ({
-    color: 0x451954,
-    shading:THREE.FlatShading
-});
-
-var greyMat = new THREE.MeshLambertMaterial ({
-    color: 0x653f4c,
     shading:THREE.FlatShading
 });
 
@@ -100,9 +81,6 @@ function init(){
     document.addEventListener('mousemove', handleMouseMove, false);
     document.addEventListener('mousedown', handleMouseDown, false);
     document.addEventListener('mouseup', handleMouseUp, false);
-    /*
-    controls = new THREE.OrbitControls( camera, renderer.domElement);
-    //*/
 }
 
 function createFrog(){
@@ -138,11 +116,8 @@ Frog = function(){
     faceGeom.computeVertexNormals();
     this.face = new THREE.Mesh(faceGeom,greenMat);
     this.face.geometry.applyMatrix( new THREE.Matrix4().makeScale( 1, 0.6, 1 ) );
-    // this.face.geometry.applyMatrix( new THREE.Matrix4().makeTranslation( 0, this.bodyHeight + 0.5 * 30, 0 ) );
-    // this.face.geometry.applyMatrix(skewMatrixBody);
 
     // Eyes
-    // var eyeGeom = new THREE.BoxGeometry(12,12, 1);
     var eyeGeom = new THREE.CircleGeometry(10,32);
     this.rightEye = new THREE.Mesh(eyeGeom, whiteMat);
     this.rightEye.position.set(-12,15, 25);
@@ -205,7 +180,6 @@ Frog = function(){
 
     var torsoGeom = new THREE.CylinderGeometry(19, 26 ,this.bodyHeight,4);
     this.torso = new THREE.Mesh(torsoGeom,greenMat);
-    // this.torso.geometry.applyMatrix(new THREE.Matrix4().makeRotationY(Math.PI/4));
     this.torso.geometry.applyMatrix(new THREE.Matrix4().makeTranslation(0,-this.bodyHeight/2,0));
 
 
@@ -372,7 +346,6 @@ Frog.prototype.lip = function(){
             _this.mouth.geometry.verticesNeedUpdate = true;
             _this.huntmouth.geometry.verticesNeedUpdate = true;
         }});
-    // console.log(fly);
     TweenMax.to (fly.flybody.position, .3, {x : tonguePos.x, y:tonguePos.y, z:tonguePos.z, delay:.35, onComplete:function(){}})
 }
 
@@ -380,11 +353,6 @@ Fly = function(){
     this.x = 0;
     this.y = 0;
     this.z = 0;
-    this.oldx = 0;
-    this.oldy = 0;
-    this.isRootNode = false;
-    this.constraints = [];
-    this.vertex = null;
 
     var stringMat = new THREE.LineBasicMaterial({
         color: 0x630d15,
@@ -476,13 +444,13 @@ function loop(){
         ( mousePos.x / window.innerWidth ) * 2 - 1,
         - ( mousePos.y / window.innerHeight ) * 2  + 1,
         0.1 );
+
     vector.unproject( camera );
     var dir = vector.sub( camera.position ).normalize();
     var distance = (115 - camera.position.z) / dir.z;
     var pos = camera.position.clone().add( dir.multiplyScalar( distance ) );
 
     if(hunt){
-        // console.log("hunting");
         if(!headDir){
             frog1.targetFly.x = pos.x;
             frog1.targetFly.y = pos.y;
@@ -495,7 +463,6 @@ function loop(){
             frog1.hunt(frog1.targetFly,fly);
         }
     }else{
-        // console.log("not Hunting");
         fly.update(pos.x,pos.y,pos.z);
         frog1.blk();
         frog1.traceMouse(pos);
